@@ -8,7 +8,7 @@ import os
 import time
 email_bot = EmailerClass(param_sender="pimessenger.80@gmail.com", param_password="zttq kvuk hmnj qmzu")
 camera_bot = CameraClass()
-model_bot = ModelClass(param_onnx_weights_path="model_/cat_model_v3.onnx", param_categories_list_json="model_/categories.json")
+model_bot = ModelClass(param_onnx_weights_path="model_/cat_model_v4.onnx", param_categories_list_json="model_/categories.json")
 motion_sensor_bot = MotionSensorClass()
 load_cell_bot = LoadCellClass(dt=6, sck=5)
 
@@ -48,19 +48,22 @@ def main():
                         cycle()
                         
                         final_weight = load_cell_bot.get_reading(p_readings=100)
-                        food_eaten = init_weight - final_weight
-                        subject = f"{class_label} seen {date_time}"
-                        body = f"""
-                        {class_label} visited the food bowl on {date_time}
-                        They ate {food_eaten} g of food
-                                """
-                        print(body)
+                        food_eaten = init_weight - final_weight 
                         
-                        msg = email_bot.make_msg(subject=subject, body=body, file_path=new_photo_path)
-                        email_bot.mail_msg(receiver, msg)
-                        with open("../cats/data.txt", "a", encoding="utf-8") as f:
-                            f.write(f"{date_time} {class_label}\n")
-                            f.write(f"Food eaten: {food_eaten} g\n")
+                        if food_eaten > 1:
+                            
+                            subject = f"{class_label} seen {date_time}"
+                            body = f"""
+                            {class_label} visited the food bowl on {date_time}
+                            They ate {food_eaten} g of food
+                                    """
+                            print(body)
+                            
+                            msg = email_bot.make_msg(subject=subject, body=body, file_path=new_photo_path)
+                            email_bot.mail_msg(receiver, msg)
+                            with open("../cats/data.txt", "a", encoding="utf-8") as f:
+                                f.write(f"{date_time} {class_label}\n")
+                                f.write(f"Food eaten: {food_eaten} g\n")
                     else:
                         print("nothing!!!")
                         if os.path.exists(new_photo_path):
